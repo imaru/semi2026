@@ -1,39 +1,54 @@
-# install.packages('eyelinkReader')
-# install.packages('tidyverse')
-# install.packages('patchwork')
+---
+title: "edfdisp"
+format: html
+editor: visual
+---
 
+## 必要パッケージ
+
+```{r}
 library(eyelinkReader)
 library(tidyverse)
 library(patchwork)
+```
 
+## データ読み込み
+
+```{r}
 dat<-eyelinkReader::read_edf('blinktest.edf', import_samples=TRUE)
+```
 
+## 座標と瞳孔径描画
+
+```{r}
 gorgx<-ggplot(data=dat$samples)+geom_line( aes(x=time_rel, y=gxR), color='red')
 gorgx<-gorgx+ylim(dat$display_coords[1], dat$display_coords[3])
 gorgy<-ggplot(data=dat$samples)+geom_line( aes(x=time_rel, y=gyR), color='blue')
 gorgy<-gorgy+ylim(dat$display_coords[2], dat$display_coords[4])
-
 gppl<-ggplot(data=dat$samples)+geom_line(aes(x=time_rel, y=paR), color='green')
 
 gorgx / gorgy / gppl
 
-nsmp<-1000/dat$headers$rec_sample_rate
+```
 
-tmpwid<-50
+## 瞬目付近を拡大
+
+```{r}
+tmpwid<-100
 tblink<-1
-prd<-(dat$blinks$sttime_rel[tblink]/nsmp-tmpwid):(dat$blinks$entime_rel[tblink]/nsmp+tmpwid)
+prd<-(dat$blinks$sttime_rel[tblink]/(1000/dat$headers$rec_sample_rate)-tmpwid):(dat$blinks$entime_rel[tblink]/(1000/dat$headers$rec_sample_rate)+tmpwid)
 plot(prd,dat$samples$paR[prd])
+```
+## 検出処理 
 
-
-# dat2<-eyelinkReader::read_edf('mwtest 1.edf', import_samples = TRUE)
-
+```{r}
 source('./microsaccade_detection.R')
 
 res<-detect_microsaccades(dat$samples$gxR, dat$samples$gyR)
 onsets<-res$onset*(1000/dat$headers$rec_sample_rate)
 offsets<-res$offset*(1000/dat$headers$rec_sample_rate)
-
-nms<-32
+for (i in 1:nrow(res)){
+nms<-i
 prd1<-(res$onset[nms]-tmpwid):(res$offset[nms]+tmpwid)
 prd2<-(res$onset[nms]):(res$offset[nms])
 xx<-c(res$onset[nms]-tmpwid, res$offset[nms]+tmpwid)
@@ -42,3 +57,5 @@ plot(prd1, dat$samples$paR[prd1], xlim=xx, ylim=yy)
 par (new =T)
 plot(prd2, dat$samples$paR[prd2], col='red', xlim=xx, ylim=yy)
 res[nms,]
+}
+```
