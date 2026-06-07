@@ -48,14 +48,14 @@ res<-detect_microsaccades(dat$samples$gxR, dat$samples$gyR)
 onsets<-res$onset*(1000/dat$headers$rec_sample_rate)
 offsets<-res$offset*(1000/dat$headers$rec_sample_rate)
 for (i in 1:nrow(res)){
-nms<-i
-prd1<-(res$onset[nms]-tmpwid):(res$offset[nms]+tmpwid)
-prd2<-(res$onset[nms]):(res$offset[nms])
-xx<-c(res$onset[nms]-tmpwid, res$offset[nms]+tmpwid)
-yy<-c(min(dat$samples$paR[prd1],na.rm = T), max(dat$samples$paR[prd1],na.rm=T))
-plot(prd1, dat$samples$paR[prd1], xlim=xx, ylim=yy)
-par (new =T)
-plot(prd2, dat$samples$paR[prd2], col='red', xlim=xx, ylim=yy)
-res[nms,]
+  nms<-i
+  prd1<-(res$onset[nms]-tmpwid):(res$offset[nms]+tmpwid)
+  prd2<-(res$onset[nms]):(res$offset[nms])
+  xx<-c(res$onset[nms]-tmpwid, res$offset[nms]+tmpwid)
+  yy<-c(min(dat$samples$paR[prd1],na.rm = T), max(dat$samples$paR[prd1],na.rm=T))
+  plot(prd1, dat$samples$paR[prd1], xlim=xx, ylim=yy)
+  par (new =T)
+  plot(prd2, dat$samples$paR[prd2], col='red', xlim=xx, ylim=yy)
+  res[nms,]
 }
 ```
